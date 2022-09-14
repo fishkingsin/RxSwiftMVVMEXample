@@ -51,12 +51,13 @@ class ViewController: UIViewController {
         return view
     }()
 
-    /// Dimension and Size
-    private enum Dimen {
-        /* Example
-         static let headerViewTopPadding = IPhoneXRelative320LayoutConstraint.value(18)
-         */
-    }
+    var label: UILabel = {
+       let view = UILabel()
+        view.text = "Default Text"
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+
 
     private(set) var viewModel: MainViewModelType!
 
@@ -133,6 +134,7 @@ class ViewController: UIViewController {
         stackView.addArrangedSubview(switch2)
         stackView.addArrangedSubview(switch3)
         stackView.addArrangedSubview(button)
+        stackView.addArrangedSubview(label)
 
         scrollView.addSubview(stackView)
         view.addSubview(scrollView)
@@ -302,7 +304,14 @@ class ViewController: UIViewController {
             }).disposed(by: bag)
 
 
-
+        viewModel
+            .outputs
+            .reactiveText
+            .asObservable()
+            .subscribe(onNext: { [weak self] text in
+            guard let self = self else { return }
+                self.label.text = text
+            }).disposed(by: bag)
     }
 
 }

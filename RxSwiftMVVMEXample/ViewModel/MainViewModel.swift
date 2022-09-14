@@ -54,6 +54,7 @@ public protocol MainViewModelOutputs: AnyObject {
     var enable2: Driver<Bool> { get}
     var enable3: Driver<Bool> { get}
     var bottomsheetOptions: Driver<([String], String?)> { get}
+    var reactiveText: Driver<String> { get }
 }
 
 public protocol MainViewModelType: AnyObject {
@@ -214,6 +215,28 @@ class MainViewModel:
     var bottomsheetOptions: Driver<([String], String?)> { _bottomsheetOptions.asDriver().flatMap(ignoreNil) }
     private var _bottomsheetOptions: BehaviorRelay<([String], String?)?> = .init(value: nil)
 
+
+    var reactiveText: Driver<String> {
+        BehaviorRelay.combineLatest(
+            _text,
+            _enable3)
+        .map { text, enable -> String in
+            if enable == false {
+                return "check three check box first"
+            }
+            switch text {
+            case "123":
+                return "to short"
+            case "":
+                return "Text can not be empty"
+            default:
+                return ""
+            }
+        }
+        .flatMap(ignoreNil)
+        .asDriver(onErrorJustReturn: "")
+
+    }
 
     var inputs: MainViewModelInputs { self }
     var outputs: MainViewModelOutputs { self }
