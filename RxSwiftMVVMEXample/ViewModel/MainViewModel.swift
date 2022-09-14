@@ -173,13 +173,15 @@ class MainViewModel:
     }
 
     var enableButton: Driver<Bool> {
-        _text.compactMap{ $0 }
-            .withLatestFrom(_isAllEnabled) { text, isAllEnabled in
-                return (text != "" && isAllEnabled)
-            }
-            .asObservable()
-            .flatMap(ignoreNil)
-            .asDriver(onErrorJustReturn: false)
+        BehaviorRelay.combineLatest(
+            _text.compactMap{ $0 },
+            _isAllEnabled
+        ).map { text, isAllEnabled in
+            return (!text.isEmpty && isAllEnabled)
+        }
+        .asObservable()
+        .flatMap(ignoreNil)
+        .asDriver(onErrorJustReturn: false)
     }
 
     var text: Driver<String> { _text.asDriver().flatMap(ignoreNil) }

@@ -287,6 +287,8 @@ class ViewController: UIViewController {
             .outputs
             .enableButton
             .asObservable()
+            .observe(on: MainScheduler.instance)
+            .subscribe(on: MainScheduler.instance)
             .subscribe(onNext: { [weak self] enabled in
                 guard let self = self else { return }
                 print("enableButton \(enabled)")
@@ -297,10 +299,15 @@ class ViewController: UIViewController {
         viewModel
             .outputs
             .didClickButton
+            .withLatestFrom(viewModel.outputs.text)
             .asObservable()
-            .subscribe(onNext: { [weak self] _ in
+            .subscribe(onNext: { [weak self] text in
                 guard let self = self else { return }
-//                self.presentPanModal(MySelectionBottomSheet(viewModel: self.viewModel))
+                let vc = UIAlertController(title: text, message: "message", preferredStyle: .alert)
+                vc.addAction(.init(title: "Cancel", style: .default, handler: { action in
+                    vc.dismiss(animated: true)
+                }))
+                self.present(vc, animated: true)
             }).disposed(by: bag)
 
 
